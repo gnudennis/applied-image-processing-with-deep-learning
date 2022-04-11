@@ -2,31 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d42da26b-3bd4-4853-b752-0ec9a4e2b742" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/evaluate.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/models/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/models/resnet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/predict.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/train.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/utils/accumulator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/utils/timer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/utils/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aip/utils/visual.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/split_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saved/resnet/class_indices.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saved/resnet/log-resnet34/resnet34_ft.pth" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saved/resnet/log-resnet34/run-resnet34.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saved/resnet/resnet34-pre.pth" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saved/resnet/resnet34_ft.pth" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saved/resnet/resnet50-pre.pth" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Test_ResNet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
