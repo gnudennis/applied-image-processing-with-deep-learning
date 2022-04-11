@@ -130,3 +130,4 @@ dmypy.json
 
 dataset/flower_data/
 *.pth
+.DS_Store

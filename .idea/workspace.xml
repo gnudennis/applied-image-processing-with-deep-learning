@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d42da26b-3bd4-4853-b752-0ec9a4e2b742" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,10 +152,10 @@
       <screen x="52" y="25" width="1484" height="935" />
     </state>
     <state x="258" y="151" key="#com.intellij.execution.impl.EditConfigurationsDialog/52.25.1484.935@52.25.1484.935" timestamp="1649598373842" />
-    <state x="490" y="298" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1649515125274">
+    <state x="490" y="298" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1649653374072">
       <screen x="52" y="25" width="1484" height="935" />
     </state>
-    <state x="490" y="298" key="#com.intellij.fileTypes.FileTypeChooser/52.25.1484.935@52.25.1484.935" timestamp="1649515125274" />
+    <state x="490" y="298" key="#com.intellij.fileTypes.FileTypeChooser/52.25.1484.935@52.25.1484.935" timestamp="1649653374072" />
     <state x="490" y="167" key="#pytest_for_ResNet_Test2.test1" timestamp="1649251386620">
       <screen x="52" y="25" width="1484" height="935" />
     </state>
