@@ -7,6 +7,8 @@ from tqdm import tqdm
 from .evaluate import accuracy, evaluate_accuracy_gpu
 from .utils import try_all_gpus, Accumulator, Animator, Timer
 
+__all__ = ['train_wrapper']
+
 
 def train_batch(net, X, y, loss, optimizer, devices):
     """Train for a minibatch with mutiple GPUs"""
@@ -27,7 +29,8 @@ def train_batch(net, X, y, loss, optimizer, devices):
     return train_loss_sum, train_acc_sum
 
 
-def train(net, train_loader, valid_loader, loss, optimizer, num_epochs, devices=try_all_gpus(), saved_path=None):
+def train_wrapper(net, train_loader, valid_loader, loss, optimizer, num_epochs, devices=try_all_gpus(),
+                  saved_path=None):
     timer, num_batches = Timer(), len(train_loader)
     animator = Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
                         legend=['train loss', 'train acc', 'test acc'])
@@ -60,3 +63,4 @@ def train(net, train_loader, valid_loader, loss, optimizer, num_epochs, devices=
 
     print(f'loss {metric[0] / metric[2]:.3f}, train acc {metric[1] / metric[3]:.3f}, valid acc {valid_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec on {str(devices)}')
+

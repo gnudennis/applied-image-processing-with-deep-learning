@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 dataset/flower_data/
+dataset/cifar10/
 *.pth
 .DS_Store
 .idea/

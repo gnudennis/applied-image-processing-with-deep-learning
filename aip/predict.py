@@ -3,12 +3,12 @@ from torch import nn
 
 from .utils import try_all_gpus
 
-__all__ = ['predict']
+__all__ = ['predict_wrapper']
 
 argmax = lambda x, *args, **kwargs: x.argmax(*args, **kwargs)
 
 
-def predict(net, inputs, devices=try_all_gpus()):
+def predict_wrapper(net, inputs, devices=try_all_gpus()):
     net = nn.DataParallel(net, device_ids=devices).to(devices[0])
 
     if isinstance(net, nn.Module):

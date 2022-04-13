@@ -86,7 +86,7 @@ class Bottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         identity = x
 
         out = self.conv1(x)
@@ -194,32 +194,32 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
 
-def resnet18(num_classes=1000, include_top=True):
+def resnet18(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnet18-f37072fd.pth
     return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes, include_top=include_top)
 
 
-def resnet34(num_classes=1000, include_top=True):
+def resnet34(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnet34-b627a593.pth
     return ResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes, include_top=include_top)
 
 
-def resnet50(num_classes=1000, include_top=True):
+def resnet50(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnet50-0676ba61.pth
     return ResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes, include_top=include_top)
 
 
-def resnet101(num_classes=1000, include_top=True):
+def resnet101(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnet101-63fe2227.pth
     return ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes, include_top=include_top)
 
 
-def resnet152(num_classes=1000, include_top=True):
+def resnet152(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnet152-394f9c45.pth
     return ResNet(Bottleneck, [3, 8, 36, 3], num_classes=num_classes, include_top=include_top)
 
 
-def resnext50_32x4d(num_classes=1000, include_top=True):
+def resnext50_32x4d(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth
     groups = 32
     width_per_group = 4
@@ -230,7 +230,7 @@ def resnext50_32x4d(num_classes=1000, include_top=True):
                   width_per_group=width_per_group)
 
 
-def resnext101_32x8d(num_classes=1000, include_top=True):
+def resnext101_32x8d(num_classes: int = 1000, include_top: bool = True) -> ResNet:
     # https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth
     groups = 32
     width_per_group = 8

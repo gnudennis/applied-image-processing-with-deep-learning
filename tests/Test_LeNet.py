@@ -7,36 +7,27 @@ from torch import nn, optim
 from torchvision import transforms, datasets
 
 from aip import train_wrapper, predict_wrapper
-from aip.models import resnet34
+from aip.models import lenet5
 from aip.utils import get_dataloader_workers, try_all_gpus, show_images
 
 
-def train_ft(batch_size=64, num_epochs=5, learning_rate=1e-4, param_group=True):
-    """训练脚本(finetune)"""
+def train(batch_size=128, num_epochs=5, learning_rate=1e-3):
     root = os.path.abspath(os.path.join(os.getcwd(), '../'))  # get data root path
-    dataset_path = os.path.join(root, 'dataset', 'flower_data')  # flower data set path
-    assert os.path.exists(dataset_path), f'{dataset_path} path does not exist.'
-    model_path = os.path.join(root, 'saved', 'resnet')
+    dataset_root = os.path.join(root, 'dataset', 'cifar10')  # cifar10 set path
+    assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
+    model_path = os.path.join(root, 'saved', 'lenet')
     assert os.path.exists(model_path), f'{model_path} path does not exist.'
 
-    data_transform = {
-        'train': transforms.Compose([
-            transforms.RandomResizedCrop(224),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]
+    )
 
-        'val': transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])}
-
-    train_dataset = datasets.ImageFolder(os.path.join(dataset_path, 'train'), transform=data_transform['train'])
-    valid_dataset = datasets.ImageFolder(os.path.join(dataset_path, 'val'), transform=data_transform['val'])
+    train_dataset = datasets.CIFAR10(dataset_root, train=True, download=True, transform=transform)
+    valid_dataset = datasets.CIFAR10(dataset_root, train=False, download=True, transform=transform)
     print(f'using {len(train_dataset)} images for training, {len(valid_dataset)} images for validation.')
 
-    # {'daisy':0, 'dandelion':1, 'roses':2, 'sunflower':3, 'tulips':4}
+    # {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
     class_list = train_dataset.class_to_idx
     cla_dict = dict((val, key) for key, val in class_list.items())
     json_str = json.dumps(cla_dict, indent=4)
@@ -47,51 +38,34 @@ def train_ft(batch_size=64, num_epochs=5, learning_rate=1e-4, param_group=True):
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=nw)
     valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, num_workers=nw)
 
-    # import torchvision
-    # net = torchvision.models.resnet50(pretrained=True)
-
-    # load pretrain weights
-    net = resnet34()
-    model_weight_path = os.path.join(model_path, 'resnet34-pre.pth')
-    assert os.path.exists(model_weight_path), f'file {model_path} does not exist.'
-    net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
-    # for param in net.parameters():
-    #     param.requires_grad = False
-
-    in_channel = net.fc.in_features
-    net.fc = nn.Linear(in_channel, len(class_list))
+    net = lenet5()
     loss = nn.CrossEntropyLoss(reduction='none')
-
-    if param_group:
-        params_1x = [param for name, param in net.named_parameters()
-                     if param.requires_grad and name not in ["fc.weight", "fc.bias"]]
-        optimizer = optim.Adam([{'params': params_1x},
-                                {'params': net.fc.parameters(), 'lr': learning_rate * 10}],
-                               lr=learning_rate, weight_decay=0.001)
-    else:
-        optimizer = optim.Adam(net.parameters(), lr=learning_rate,
-                               weight_decay=0.001)
+    optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=0.001)
 
     devices = try_all_gpus()
-    saved_path = os.path.join(model_path, 'resnet34_ft.pth')
+    saved_path = os.path.join(model_path, 'lenet5.pth')
     train_wrapper(net, train_loader, valid_loader, loss, optimizer, num_epochs, devices, saved_path)
+
+    from matplotlib import pyplot as plt
+    plt.show()
 
 
 def predict(image_name):
     root = os.path.abspath(os.path.join(os.getcwd(), '../'))  # get data root path
-    dataset_root = os.path.join(root, 'dataset', 'flower_data')  # flower data set path
+    dataset_root = os.path.join(root, 'dataset', 'cifar10')  # cifar10 set path
     assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
-    model_path = os.path.join(root, 'saved', 'resnet')
+    model_path = os.path.join(root, 'saved', 'lenet')
     assert os.path.exists(model_path), f'{model_path} path does not exist.'
 
-    data_transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+    transform = transforms.Compose([
+        transforms.Resize(36),
+        transforms.CenterCrop(32),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]
+    )
 
-    net = resnet34(num_classes=5)
-    model_weight_path = os.path.join(model_path, 'resnet34_ft.pth')
+    net = lenet5()
+    model_weight_path = os.path.join(model_path, 'lenet5.pth')
     assert os.path.exists(model_weight_path), f'file {model_path} does not exist.'
     net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
 
@@ -110,7 +84,7 @@ def predict(image_name):
     pimg = Image.open(test_image_path)
     # plt.imshow(pimg)
     # [N, C, H, W]
-    img = torch.unsqueeze(data_transform(pimg), dim=0)
+    img = torch.unsqueeze(transform(pimg), dim=0)
     probs, classes = predict_wrapper(net, img)
 
     titles = [f'{os.path.splitext(os.path.basename(test_image_path))[0]}\n'
@@ -120,21 +94,26 @@ def predict(image_name):
 
 def batch_predict(batch_size=8, formats=['.jpg', '.jpeg', '.webp'], shows=12):
     root = os.path.abspath(os.path.join(os.getcwd(), '../'))  # get data root path
-    dataset_root = os.path.join(root, 'dataset', 'flower_data')  # flower data set path
+    dataset_root = os.path.join(root, 'dataset', 'cifar10')  # cifar10 set path
     assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
-    model_path = os.path.join(root, 'saved', 'resnet')
+    model_path = os.path.join(root, 'saved', 'lenet')
     assert os.path.exists(model_path), f'{model_path} path does not exist.'
 
-    data_transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+    transform = transforms.Compose([
+        transforms.Resize(36),
+        transforms.CenterCrop(32),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]
+    )
 
-    net = resnet34(num_classes=5)
-    model_weight_path = os.path.join(model_path, 'resnet34_ft.pth')
+    net = lenet5()
+    model_weight_path = os.path.join(model_path, 'lenet5.pth')
     assert os.path.exists(model_weight_path), f'file {model_path} does not exist.'
     net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
+
+    # missing_keys, unexpected_keys = net.load_state_dict(torch.load(model_weight_path, map_location='cpu'), strict=False)
+    # print('[missing_keys]:', *missing_keys, sep='\n')
+    # print('[unexpected_keys]:', *unexpected_keys, sep='\n')
 
     # read cla_dict
     json_path = os.path.join(model_path, 'class_indices.json')
@@ -157,7 +136,7 @@ def batch_predict(batch_size=8, formats=['.jpg', '.jpeg', '.webp'], shows=12):
             assert os.path.exists(each_img_path), f'file: {each_img_path} dose not exist.'
             pil_img = Image.open(each_img_path)
             pil_img_batch.append(pil_img)
-            img_batch.append(data_transform(pil_img))
+            img_batch.append(transform(pil_img))
 
         if img_batch:
             batch_img = torch.stack(img_batch, dim=0)
@@ -178,16 +157,7 @@ def batch_predict(batch_size=8, formats=['.jpg', '.jpeg', '.webp'], shows=12):
     show_images(pil_img_list[:(shows // 3) * 3], shows // 3, 3, titles[:(shows // 3) * 3], scale=2.5)
 
 
-# import pytest
-# @pytest.mark.parametrize(
-#     'batch_size, num_epochs, learning_rate, param_group',
-#     [(128, 3, 0.0001, True), ]
-# )
-# def test_resnet_train_ft(batch_size, num_epochs, learning_rate, param_group):
-#     train_ft(batch_size, num_epochs, learning_rate, param_group)
-
-
 if __name__ == '__main__':
-    # train_ft(128, 5, 0.0001, True)
-    # predict('sunflowers2.webp')
+    # train(128, 20, 1e-3)
+    # predict('airplane1.jpeg')
     batch_predict(batch_size=5, shows=15)
