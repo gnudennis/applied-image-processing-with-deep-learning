@@ -23,7 +23,6 @@ def train_args():
     parser.add_argument('--learning-rate', default=1e-4, help='learning rate')
     parser.add_argument('--num-epochs', default=10, help="number of epochs")
 
-    parser.parse_args()
     return parser
 
 
@@ -34,7 +33,6 @@ def test_args():
     parser.add_argument('--dataset', default='flower_data', help='choose your dataset')
     parser.add_argument('--num-classes', default=5, help='num of classes')
 
-    parser.parse_args()
     return parser
 
 
@@ -52,7 +50,7 @@ def train(args: argparse.Namespace):
     model_root, net, cla_dict = get_arch_net(root, args.arch, train_dataset)
 
     if args.train_mode == 'ft':
-        model_weight_path = os.path.join(model_root, 'resnet34-pre.pth')
+        model_weight_path = os.path.join(model_root, args.weights_pth)
         assert os.path.exists(model_weight_path), f'file {model_root} does not exist.'
         net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
         # for param in net.parameters():

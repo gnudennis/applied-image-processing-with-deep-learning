@@ -133,3 +133,4 @@ dataset/cifar10/
 *.pth
 .DS_Store
 .idea/
+*.ipynb
