@@ -60,7 +60,8 @@ def train_wrapper(net, train_loader, valid_loader, loss, optimizer, num_epochs, 
         if saved_path is not None and valid_acc > best_acc:
             best_acc = valid_acc
             torch.save(net.module.state_dict(), saved_path)
+            print(
+                f'[best saved](epoch: {epoch + 1:<3})loss {metric[0] / metric[2]:.3f}, train acc {metric[1] / metric[3]:.3f}, valid acc {valid_acc:.3f}')
 
     print(f'loss {metric[0] / metric[2]:.3f}, train acc {metric[1] / metric[3]:.3f}, valid acc {valid_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec on {str(devices)}')
-
