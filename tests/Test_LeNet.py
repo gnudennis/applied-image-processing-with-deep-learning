@@ -22,7 +22,6 @@ def train_args():
     parser.add_argument('--learning-rate', default=1e-3, help='learning rate')
     parser.add_argument('--num-epochs', default=20, help="number of epochs")
 
-    parser.parse_args()
     return parser
 
 
@@ -31,7 +30,7 @@ def test_args():
     parser.add_argument('--arch', default='lenet5', help='architecture')
     parser.add_argument('--weights-pth', default='lenet5.pth', help='net weigths path')
     parser.add_argument('--dataset', default='cifar10', help='choose your dataset')
-    parser.parse_args()
+
     return parser
 
 
@@ -143,11 +142,12 @@ def batch_predict(args: argparse.Namespace,
 
 
 if __name__ == '__main__':
-    parser = train_args()
-    args = parser.parse_args()
-    train(args)
+    # parser = train_args()
+    # args, unknown = parser.parse_known_args()
+    # train(args)
 
     parser = test_args()
-    args = parser.parse_args()
+    # args = parser.parse_args() # fail in jupyter
+    args, unknown = parser.parse_known_args()
     # predict(args, 'airplane1.jpeg')
     batch_predict(args, batch_size=2, shows=15)

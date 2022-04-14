@@ -178,10 +178,10 @@ def batch_predict(args: argparse.Namespace,
 
 if __name__ == '__main__':
     # parser = train_args()
-    # args = parser.parse_args()
+    # args, unknown = parser.parse_known_args()
     # train(args)
 
     parser = test_args()
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
     # predict(args, 'sunflowers2.webp')
     batch_predict(args, batch_size=5, shows=15)
