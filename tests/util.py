@@ -4,7 +4,8 @@ import os
 import torch
 from torchvision import transforms, datasets
 
-from aip.models import lenet5, alexnet, resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
+from aip.models import lenet5, alexnet, vgg16, vgg16_bn, resnet18, resnet34, resnet50, resnet101, resnet152, \
+    resnext50_32x4d, \
     resnext101_32x8d
 
 __all__ = ["get_dataset", "get_transform", "get_arch_net"]
@@ -92,8 +93,10 @@ def get_arch_net(root, arch, train_dataset, train=True, **kwargs):
     model_root = os.path.join(root, 'saved', arch)
     assert os.path.exists(model_root), f'{model_root} path does not exist.'
 
-    assert arch in ('lenet5', 'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'resnext50_32x4d',
-                    'resnext101_32x8d', 'alexnet'), f'{arch} is not supported.'
+    assert arch in (
+        'lenet5', 'alexnet', 'vgg16', 'vgg16_bn', 'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152',
+        'resnext50_32x4d',
+        'resnext101_32x8d'), f'{arch} is not supported.'
 
     if train:
         class_list = train_dataset.class_to_idx
@@ -111,6 +114,10 @@ def get_arch_net(root, arch, train_dataset, train=True, **kwargs):
         net = lenet5(**kwargs)
     elif arch == 'alexnet':
         net = alexnet(**kwargs)
+    elif arch == 'vgg16':
+        net = vgg16(**kwargs)
+    elif arch == 'vgg16_bn':
+        net = vgg16_bn(**kwargs)
     elif arch == 'resnet18':
         net = resnet18(**kwargs)
     elif arch == 'resnet34':
