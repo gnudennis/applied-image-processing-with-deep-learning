@@ -8,10 +8,6 @@ from torch import nn
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d']
 
-"""
-参考：torchvision.models.ResNet实现
-"""
-
 
 def conv3x3(in_planes: int, planes: int, stride: int = 1, groups: int = 1) -> nn.Conv2d:
     return nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride,
@@ -23,6 +19,10 @@ def conv1x1(in_planes: int, planes: int, stride: int = 1) -> nn.Conv2d:
 
 
 class BasicBlock(nn.Module):
+    """
+    参考：torchvision.models.ResNet实现
+    """
+
     expansion: int = 1
 
     def __init__(

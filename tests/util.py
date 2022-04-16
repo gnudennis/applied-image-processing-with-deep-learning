@@ -4,7 +4,8 @@ import os
 import torch
 from torchvision import transforms, datasets
 
-from aip.models import lenet5, resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, resnext101_32x8d
+from aip.models import lenet5, alexnet, resnet18, resnet34, resnet50, resnet101, resnet152, resnext50_32x4d, \
+    resnext101_32x8d
 
 __all__ = ["get_dataset", "get_transform", "get_arch_net"]
 
@@ -23,8 +24,7 @@ def get_transform(dataset_name, train=True):
                 transforms.Resize(36),
                 transforms.CenterCrop(32),
                 transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
-        }
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])}
 
     if dataset_name == 'flower_data':
         data_transform = {
@@ -93,7 +93,7 @@ def get_arch_net(root, arch, train_dataset, train=True, **kwargs):
     assert os.path.exists(model_root), f'{model_root} path does not exist.'
 
     assert arch in ('lenet5', 'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'resnext50_32x4d',
-                    'resnext101_32x8d'), f'{arch} is not supported.'
+                    'resnext101_32x8d', 'alexnet'), f'{arch} is not supported.'
 
     if train:
         class_list = train_dataset.class_to_idx
@@ -109,6 +109,8 @@ def get_arch_net(root, arch, train_dataset, train=True, **kwargs):
     net = None
     if arch == 'lenet5':
         net = lenet5(**kwargs)
+    elif arch == 'alexnet':
+        net = alexnet(**kwargs)
     elif arch == 'resnet18':
         net = resnet18(**kwargs)
     elif arch == 'resnet34':

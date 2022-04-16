@@ -26,11 +26,13 @@ class LeNet(nn.Module):
         # Official init from torch repo.
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight)
+                # nn.init.kaiming_normal_(m.weight)
+                nn.init.xavier_uniform_(m.weight)
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -41,3 +43,14 @@ class LeNet(nn.Module):
 
 def lenet5(in_planes: int = 3, num_classes: int = 10) -> LeNet:
     return LeNet(in_planes, num_classes)
+
+
+if __name__ == '__main__':
+    x = torch.randn(([32, 3, 32, 32]))
+    net = lenet5()
+    for layer in net.features:
+        x = layer(x)
+        print(layer.__class__.__name__, 'output shape: \t', x.shape)
+    for layer in net.classifier:
+        x = layer(x)
+        print(layer.__class__.__name__, 'output shape: \t', x.shape)

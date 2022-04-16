@@ -12,15 +12,16 @@ from aip.utils import get_dataloader_workers, try_all_gpus, show_images
 
 def train_args():
     parser = argparse.ArgumentParser(description="train and save your model")
-    parser.add_argument('--arch', default='resnet34', help='architecture')
-    parser.add_argument('--train-mode', default='ft', help='choose train mode (start/ft)')
-    parser.add_argument('--weights-pth', default='resnet34-pre.pth', help='net weigths path only used in ft')
+    parser.add_argument('--arch', default='alexnet', help='architecture')
+    parser.add_argument('--num-classes', default=5, help='architecture')
+    parser.add_argument('--train-mode', default='start', help='choose train mode (start/ft)')
+    parser.add_argument('--weights-pth', default='none', help='net weigths path only used in ft')
     parser.add_argument('--dataset', default='flower_data', help='choose your dataset')
-    parser.add_argument('--saved-pth', default='resnet34.pth', help='path for the trained model')
+    parser.add_argument('--saved-pth', default='alexnet_st.pth', help='path for the trained model')
 
-    parser.add_argument('--param_group', default=True, help="param group")
-    parser.add_argument('--batch-size', default=128, help='batch size')
-    parser.add_argument('--learning-rate', default=1e-4, help='learning rate')
+    parser.add_argument('--param_group', default=False, help="param group")
+    parser.add_argument('--batch-size', default=64, help='batch size')
+    parser.add_argument('--learning-rate', default=1e-3, help='learning rate')
     parser.add_argument('--num-epochs', default=10, help="number of epochs")
 
     return parser
@@ -28,8 +29,8 @@ def train_args():
 
 def test_args():
     parser = argparse.ArgumentParser(description="test model")
-    parser.add_argument('--arch', default='resnet34', help='architecture')
-    parser.add_argument('--weights-pth', default='resnet34.pth', help='net weigths path')
+    parser.add_argument('--arch', default='alexnet', help='architecture')
+    parser.add_argument('--weights-pth', default='alexnet_st.pth', help='net weigths path')
     parser.add_argument('--dataset', default='flower_data', help='choose your dataset')
     parser.add_argument('--num-classes', default=5, help='num of classes')
 
@@ -37,7 +38,6 @@ def test_args():
 
 
 def train(args: argparse.Namespace):
-    """训练脚本(finetune)"""
     root = os.path.abspath(os.path.join(os.getcwd(), '../'))  # get project root
 
     # load dataset
@@ -47,7 +47,8 @@ def train(args: argparse.Namespace):
     )
 
     # load
-    model_root, net, cla_dict = get_arch_net(root, args.arch, train_dataset)
+    model_root, net, cla_dict = get_arch_net(root, args.arch, train_dataset,
+                                             num_classes=args.num_classes)
 
     if args.train_mode == 'ft':
         model_weight_path = os.path.join(model_root, args.weights_pth)
@@ -85,7 +86,7 @@ def predict(args: argparse.Namespace, image_name: str):
     assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
 
     model_root, net, cla_dict = get_arch_net(root, args.arch, None, train=False,
-                                             num_classes=args.num_classes, include_top=True)
+                                             num_classes=args.num_classes)
     model_weight_path = os.path.join(model_root, args.weights_pth)
     assert os.path.exists(model_weight_path), f'file {args.weights_pth} does not exist.'
     net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
@@ -118,7 +119,7 @@ def batch_predict(args: argparse.Namespace,
     assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
 
     model_root, net, cla_dict = get_arch_net(root, args.arch, None, train=False,
-                                             num_classes=args.num_classes, include_top=True)
+                                             num_classes=args.num_classes)
     model_weight_path = os.path.join(model_root, args.weights_pth)
     assert os.path.exists(model_weight_path), f'file {args.weights_pth} does not exist.'
     net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
@@ -163,15 +164,6 @@ def batch_predict(args: argparse.Namespace,
               for (img_path, pro, cla) in zip(img_path_list, probs, classes)]
     shows = min([shows, len(pil_img_list)])
     show_images(pil_img_list[:(shows // 3) * 3], shows // 3, 3, titles[:(shows // 3) * 3], scale=2.5)
-
-
-# import pytest
-# @pytest.mark.parametrize(
-#     'batch_size, num_epochs, learning_rate, param_group',
-#     [(128, 3, 0.0001, True), ]
-# )
-# def test_resnet_train_ft(batch_size, num_epochs, learning_rate, param_group):
-#     train_ft(batch_size, num_epochs, learning_rate, param_group)
 
 
 if __name__ == '__main__':
