@@ -12,24 +12,24 @@ from aip.utils import get_dataloader_workers, try_all_gpus, show_images
 
 def train_args():
     parser = argparse.ArgumentParser(description="train and save your model")
-    parser.add_argument('--arch', default='vgg16_bn', help='architecture')
-    parser.add_argument('--train-mode', default='ft', help='choose train mode (start/ft)')
-    parser.add_argument('--weights-pth', default='vgg16_bn-6c64b313.pth', help='net weigths path only used in ft')
+    parser.add_argument('--arch', default='googlenet', help='architecture')
+    parser.add_argument('--train-mode', default='st', help='choose train mode (start/ft)')
+    parser.add_argument('--weights-pth', default='none.pth', help='net weigths path only used in ft')
     parser.add_argument('--dataset', default='flower_data', help='choose your dataset')
-    parser.add_argument('--saved-pth', default='vgg16_bn_ft.pth', help='path for the trained model')
+    parser.add_argument('--saved-pth', default='googlenet_aux.pth', help='path for the trained model')
 
     parser.add_argument('--param_group', default=False, help="param group")
-    parser.add_argument('--batch-size', default=64, help='batch size')
-    parser.add_argument('--learning-rate', default=5e-4, help='learning rate')
-    parser.add_argument('--num-epochs', default=5, help="number of epochs")
+    parser.add_argument('--batch-size', default=128, help='batch size')
+    parser.add_argument('--learning-rate', default=1e-4, help='learning rate')
+    parser.add_argument('--num-epochs', default=10, help="number of epochs")
 
     return parser
 
 
 def test_args():
     parser = argparse.ArgumentParser(description="test model")
-    parser.add_argument('--arch', default='vgg16_bn', help='architecture')
-    parser.add_argument('--weights-pth', default='vgg16_bn_ft.pth', help='net weigths path')
+    parser.add_argument('--arch', default='googlenet', help='architecture')
+    parser.add_argument('--weights-pth', default='googlenet_aux.pth', help='net weigths path')
     parser.add_argument('--dataset', default='flower_data', help='choose your dataset')
     parser.add_argument('--num-classes', default=5, help='num of classes')
 
@@ -46,7 +46,8 @@ def train(args: argparse.Namespace):
     )
 
     # load
-    model_root, net, cla_dict = get_arch_net(root, args.arch, train_dataset)
+    model_root, net, cla_dict = get_arch_net(root, args.arch, train_dataset,
+                                             num_classes=5, aux_logits=True, init_weights=True)
 
     if args.train_mode == 'ft':
         model_weight_path = os.path.join(model_root, args.weights_pth)
@@ -55,8 +56,8 @@ def train(args: argparse.Namespace):
         # for param in net.parameters():
         #     param.requires_grad = False
 
-        in_channel = net.classifier[-1].in_features
-        net.classifier[-1] = nn.Linear(in_channel, len(cla_dict))
+        in_channel = net.fc.in_features
+        net.fc = nn.Linear(in_channel, len(cla_dict))
 
     if args.param_group:
         params_1x = [param for name, param in net.named_parameters()
@@ -84,7 +85,7 @@ def predict(args: argparse.Namespace, image_name: str):
     assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
 
     model_root, net, cla_dict = get_arch_net(root, args.arch, None, train=False,
-                                             num_classes=args.num_classes)
+                                             num_classes=args.num_classes, aux_logits=True)
     model_weight_path = os.path.join(model_root, args.weights_pth)
     assert os.path.exists(model_weight_path), f'file {args.weights_pth} does not exist.'
     net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
@@ -117,9 +118,14 @@ def batch_predict(args: argparse.Namespace,
     assert os.path.exists(dataset_root), f'{dataset_root} path does not exist.'
 
     model_root, net, cla_dict = get_arch_net(root, args.arch, None, train=False,
-                                             num_classes=args.num_classes)
+                                             num_classes=args.num_classes, aux_logits=True)
     model_weight_path = os.path.join(model_root, args.weights_pth)
     assert os.path.exists(model_weight_path), f'file {args.weights_pth} does not exist.'
+
+    # s1 = set([f'{name}_{param.shape}' for (name, param) in net.named_parameters()])
+    # s2 = set([f'{name}_{param.shape}' for (name, param) in torch.load(model_weight_path, map_location='cpu').items()])
+    # print(len(s1), len(s2))
+
     net.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
     # missing_keys, unexpected_keys = net.load_state_dict(torch.load(model_weight_path, map_location='cpu'), strict=False)
     # print('[missing_keys]:', *missing_keys, sep='\n')
@@ -171,5 +177,5 @@ if __name__ == '__main__':
 
     parser = test_args()
     args, unknown = parser.parse_known_args()
-    # # predict(args, 'sunflowers2.webp')
-    batch_predict(args, batch_size=5, shows=15)
+    predict(args, 'sunflowers2.webp')
+    # batch_predict(args, batch_size=5, shows=15)

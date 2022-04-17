@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from .evaluate import accuracy, evaluate_accuracy_gpu
 from .utils import try_all_gpus, Accumulator, Animator, Timer
+from .models import GoogLeNet
 
 __all__ = ['train_wrapper']
 
@@ -20,9 +21,17 @@ def train_batch(net, X, y, loss, optimizer, devices):
     y = y.to(devices[0])
     net.train()
     optimizer.zero_grad()
-    pred = net(X)
-    l = loss(pred, y)
-    l.sum().backward()
+    if isinstance(net.module, GoogLeNet) and net.module.aux_logits:
+        pred, aux2, aux1 = net(X)
+        l = loss(pred, y)
+        l_aux2 = loss(aux2, y)
+        l_aux1 = loss(aux1, y)
+        l_total = l.sum() + 0.3 * l_aux2.sum() + 0.3 * l_aux1.sum()
+        l_total.backward()
+    else:
+        pred = net(X)
+        l = loss(pred, y)
+        l.sum().backward()
     optimizer.step()
     train_loss_sum = l.sum()
     train_acc_sum = accuracy(pred, y)
